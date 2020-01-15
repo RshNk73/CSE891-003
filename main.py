@@ -11,23 +11,26 @@ test_data = fetch_20newsgroups(subset='test', shuffle=True, remove=remove)
 print('data loaded')
 
 categories = train_data.target_names
+print(categories)
 
 train_target = train_data.target
 test_target = test_data.target
 
-vectorizer = text.TfidfVectorizer(max_features=600)
+vectorizer = text.TfidfVectorizer(max_features=5000)
 input_train = vectorizer.fit_transform(train_data.data).toarray()
 input_test = vectorizer.transform(test_data.data).toarray()
 
-input_dim, hidden_dim, out_dim = 600, 100, 20
+input_dim, hidden_dim, out_dim = 5000, 100, 20
 w1 = np.random.rand(input_dim, out_dim)
 learning_rate = 2e-1
-epochs = 10
+epochs = 50
 
 num_correct = 0
 result = []
-for i in range(epochs):
+# trainiing part
+for epoch in range(epochs):
     num_correct = 0
+    result = []
     for i, news in enumerate(input_train):
         y = np.matmul(news, w1)
 
@@ -41,11 +44,22 @@ for i in range(epochs):
             new_target = np.zeros(20)
             new_target[train_target[i]] = 1
             new_target = new_target.reshape((1, 20))
-            news = news.reshape((600, 1))
+            news = news.reshape((5000, 1))
             w1 += learning_rate * np.matmul(news, new_target)
 
         result.append([out_index, train_target[i]])
-    print("**** Accuracy in train is: ", num_correct / len(input_train))
+    print("**** Accuracy of train in epoch", epoch + 1, " is: ", num_correct / len(input_train))
 
-print("result : ", result)
+num_correct_test = 0
+result_test = []
+for i, news in enumerate(input_test):
+    y = np.matmul(news, w1)
 
+    out_index = y.argmax(0)
+
+    if out_index == test_target[i]:
+        num_correct_test += 1
+
+    result_test.append([out_index, test_target[i]])
+
+print("****** Accuracy of test is: ", num_correct_test / len(input_test))
