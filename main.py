@@ -20,14 +20,14 @@ vectorizer = text.TfidfVectorizer(max_features=5000)
 input_train = vectorizer.fit_transform(train_data.data).toarray()
 input_test = vectorizer.transform(test_data.data).toarray()
 
-input_dim, hidden_dim, out_dim = 5000, 100, 20
+input_dim, out_dim = 5000, 20
 w1 = np.random.rand(input_dim, out_dim)
-learning_rate = 2e-1
+learning_rate = 1
 epochs = 50
 
 num_correct = 0
 result = []
-# trainiing part
+# Trainiing phase
 for epoch in range(epochs):
     num_correct = 0
     result = []
@@ -35,13 +35,13 @@ for epoch in range(epochs):
         y = np.matmul(news, w1)
 
         out_index = y.argmax(0)
-        out = np.zeros(20)
+        out = np.full((20), -1)
         out[out_index] = 1
 
         if out_index == train_target[i]:
             num_correct += 1
         else:
-            new_target = np.zeros(20)
+            new_target = np.full((20), -1)
             new_target[train_target[i]] = 1
             new_target = new_target.reshape((1, 20))
             news = news.reshape((5000, 1))
@@ -52,6 +52,7 @@ for epoch in range(epochs):
 
 num_correct_test = 0
 result_test = []
+# Test phase
 for i, news in enumerate(input_test):
     y = np.matmul(news, w1)
 
